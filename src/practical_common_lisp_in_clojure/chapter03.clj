@@ -109,3 +109,11 @@
 
 ;(select (where :artist "Dixie Chicks"))
 ;(select (where :rating 5))
+
+(defn update [selector-fn & {:keys [title artist rating ripped]}]
+  (map (fn[row]
+         (when (selector-fn row)
+           (print row))
+         row) @db))
+
+;(update (where :artist "Dixie Chicks") :rating 11)
