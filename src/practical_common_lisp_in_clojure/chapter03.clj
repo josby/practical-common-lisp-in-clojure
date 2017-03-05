@@ -16,7 +16,7 @@
 
 ;(add-record (make-cd "Roses" "Kathy Mattea" 7 true))
 ;(add-record (make-cd "Fly" "Dixie Chicks" 8 true))
-;(add-record (make-cd "Home" "Dixie Chicks" 9 true))
+;(add-record (make-cd "Home" "Dixie Chicks" 9 false))
 
 (defn dump-db []
   (doseq [cd @db] ;for each record in the db
@@ -110,10 +110,31 @@
 ;(select (where :artist "Dixie Chicks"))
 ;(select (where :rating 5))
 
-(defn update [selector-fn & {:keys [title artist rating ripped]}]
+(defn update [selector-fn & {:keys [title artist rating ripped] :as updates}]
   (map (fn[row]
-         (when (selector-fn row)
-           (print row))
-         row) @db))
+         (if (selector-fn row)
+           (merge row updates)
+           row)) @db))
 
 ;(update (where :artist "Dixie Chicks") :rating 11)
+
+
+(defmacro backwards [expr]
+  (reverse expr))
+;(backwards ("hello, world" print))
+
+(def ^:dynamic current-cd nil)
+
+(defn make-comparison-expr [[field value]]
+  `(= (~field current-cd) ~value))
+
+(defn make-comparisons-list [fields]
+  (map make-comparison-expr fields))
+
+(defmacro where [clauses]
+  `(fn [cd#]
+     (binding [current-cd cd#]
+       (and ~@(make-comparisons-list clauses)))))
+
+;(where [[:title "Give Us a Break"]])
+;(select (where [[:artist "Dixie Chicks"] [:ripped false]]))
