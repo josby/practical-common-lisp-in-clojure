@@ -1,4 +1,4 @@
-(ns practical-common-lisp-in-clojure.core)
+(ns practical-common-lisp-in-clojure.chapter03)
 
 (defn make-cd [title artist rating ripped]
   {:title  title,
