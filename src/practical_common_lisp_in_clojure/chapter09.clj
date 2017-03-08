@@ -10,8 +10,11 @@
 ;(test-+)
 
 (defn test-+ []
-  ;(format t "~:[FAIL~;pass~] ... ~a~%" (= (+ 1 2) 3) '(= (+ 1 2) 3))
-  ) ;TODO
+  (cl-format true "~:[FAIL~;pass~] ... ~a~%" (= (+ 1 2) 3) '(= (+ 1 2) 3))
+  (cl-format true "~:[FAIL~;pass~] ... ~a~%" (= (+ 1 2 3) 6) '(= (+ 1 2 3) 6))
+  (cl-format true "~:[FAIL~;pass~] ... ~a~%" (= (+ -1 -3) -4) '(= (+ -1 -3) -4)))
+
+;(test-+)
 
 (defn report-result [result form]
   (cl-format true "~:[FAIL~;pass~] ... ~a~%" result form))
@@ -37,7 +40,8 @@
 
 (defmacro check [& forms]
   `(do
-     ~@(for [form forms] `(report-result ~form (quote ~form)))))
+     ~@(for [form forms]
+         `(report-result ~form (quote ~form)))))
 
 (defn test-+ []
   (check
@@ -52,3 +56,25 @@
   result)
 
 ;(report-result (= (+ 1 2) 3) '(= (+ 1 2) 3))
+
+(defmacro combine-results [& forms]
+  `(and ~@forms))
+
+;(combine-results
+; (= (+ 1 2) 3)
+; (= (+ 1 2 3) 6)
+; (= (+ -1 -3) -4))
+
+(defmacro check [& forms]
+  `(combine-results
+    ~@(for [form forms]
+        `(report-result ~form (quote ~form)))))
+
+; redefine test-+ to make use of new check macro
+(defn test-+ []
+  (check
+   (= (+ 1 2) 3)
+   (= (+ 1 2 3) 6)
+   (= (+ -1 -3) -4)))
+
+;(test-+)
