@@ -73,8 +73,74 @@
 ; redefine test-+ to make use of new check macro
 (defn test-+ []
   (check
-   (= (+ 1 2) 2)
+   (= (+ 1 2) 3)
    (= (+ 1 2 3) 6)
    (= (+ -1 -3) -4)))
 
 ;(test-+)
+
+(defn test-* []
+  (check
+   (= (* 2 2) 4)
+   (= (* 3 5) 15)))
+
+(defn test-arithmetic []
+  (combine-results
+   (test-+)
+   (test-*)))
+
+;(test-arithmetic)
+
+(def ^:dynamic *test-name* nil)
+
+(defn report-result [result form]
+  (cl-format true "~:[FAIL~;pass~] ... ~a: ~a~%" result *test-name* form)
+  result)
+
+(defn test-+ []
+  (binding [*test-name* "TEST-+"]
+    (check
+     (= (+ 1 2) 3)
+     (= (+ 1 2 3) 6)
+     (= (+ -1 -3) -4))))
+
+;(test-+)
+
+(defmacro deftest [name & forms]
+  `(defn ~name []
+     (binding [*test-name* ~(str name)]
+       ~@forms)))
+
+(deftest test-+
+  (check
+   (= (+ 1 2) 3)
+   (= (+ 1 2 3) 6)
+   (= (+ -1 -3) -4)))
+
+;(test-+)
+
+(deftest test-*
+  (check
+   (= (* 2 2) 4)
+   (= (* 3 5) 15)))
+
+;(test-*)
+
+(defmacro deftest [name & forms]
+  `(defn ~name []
+     (binding [*test-name* (concat *test-name* (list '~name))]
+       ~@forms)))
+
+;(test-+)
+
+(deftest test-arithmetic
+  (combine-results
+   (test-+)
+   (test-*)))
+
+;(test-arithmetic)
+
+(deftest test-math
+  (test-arithmetic))
+
+;(test-math)
