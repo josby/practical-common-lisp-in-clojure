@@ -58,7 +58,7 @@
 ;(report-result (= (+ 1 2) 3) '(= (+ 1 2) 3))
 
 (defmacro combine-results [& forms]
-  `(and ~@forms))
+  `(every? identity (list ~@forms)))
 
 ;(combine-results
 ; (= (+ 1 2) 3)
@@ -73,7 +73,7 @@
 ; redefine test-+ to make use of new check macro
 (defn test-+ []
   (check
-   (= (+ 1 2) 3)
+   (= (+ 1 2) 2)
    (= (+ 1 2 3) 6)
    (= (+ -1 -3) -4)))
 
